@@ -50,6 +50,7 @@ const FileUploader = ({ label, file, setFile, color = "indigo", icon }: { label:
                     </>
                 )}
             </label>
+            <></>
 
             {previewUrl && (
                 <div className="absolute inset-0 z-10 bg-white flex flex-col items-center justify-center p-2">
