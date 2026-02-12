@@ -33,16 +33,20 @@ export async function POST(request: NextRequest) {
         else if (folderType === 'passbook') folder = 'passports/passbook';
         else if (folderType === 'medical') folder = 'passports/medical';
 
-        // Remove extension from filename if present (Cloudinary adds it automatically based on format, 
-        // or we can force it. Ideally we pass public_id without extension).
-        const publicId = filename.replace(/\.[^/.]+$/, "");
+        // Check if PDF
+        const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
+
+        // Public ID handling:
+        // For PDFs, we generally want to treat them as 'raw' or keep the extension so they are served correctly.
+        // For Images, Cloudinary manages extension, so we strip it from public_id.
+        const publicId = isPdf ? filename : filename.replace(/\.[^/.]+$/, "");
 
         const result: any = await new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
                 {
                     folder: folder,
                     public_id: publicId,
-                    resource_type: 'auto',
+                    resource_type: 'auto', // Auto allows PDF to be detected as raw/image
                     overwrite: true,
                 },
                 (error, result) => {
@@ -78,12 +82,21 @@ export async function DELETE(request: NextRequest) {
 
         // Extract Public ID from URL if not provided directly
         if (!idToDelete && url) {
-            // Regex to extract public_id from Cloudinary URL:
-            // Matches everything after 'upload/' (and optional 'v1234/') and before the extension
-            const regex = /\/upload\/(?:v\d+\/)?(.+)\.[^.]+$/;
+            // Regex to extract path after upload/(v...)/
+            const regex = /\/upload\/(?:v\d+\/)?(.+)$/;
             const match = url.match(regex);
+
             if (match && match[1]) {
-                idToDelete = match[1];
+                const captured = match[1]; // e.g., "folder/file.jpg" or "folder/file.pdf"
+
+                // If PDF, we likely kept the extension in public_id (from POST change above).
+                // If Image, we likely stripped it.
+                if (captured.toLowerCase().endsWith('.pdf')) {
+                    idToDelete = captured;
+                } else {
+                    // Strip extension for images
+                    idToDelete = captured.replace(/\.[^/.]+$/, "");
+                }
             } else {
                 return NextResponse.json({ error: 'Invalid Cloudinary URL' }, { status: 400 });
             }

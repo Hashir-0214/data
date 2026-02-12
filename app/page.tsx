@@ -47,7 +47,8 @@ function DataPage() {
                   lowerKey.includes('passport photo (back)') ||
                   lowerKey.includes('aadhar image') ||
                   lowerKey.includes('pancard image') ||
-                  lowerKey.includes('bank pasbook');
+                  lowerKey.includes('bank pasbook') ||
+                  lowerKey.includes('medical documents');
 
                 return {
                   accessorFn: (row: DataRow) => row[key],

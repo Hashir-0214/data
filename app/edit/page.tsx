@@ -52,24 +52,39 @@ const FileUploader = ({ label, file, setFile, existingUrl, onDelete, color = "in
                         <img src={existingUrl} alt={label} className="w-full h-full object-contain" />
                     )}
 
-                    {onDelete && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity z-20 gap-2">
                         <button
                             type="button"
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                onDelete();
+                                window.open(existingUrl, '_blank');
                             }}
-                            className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity z-20"
+                            className="bg-white/90 text-slate-700 p-2 rounded-full shadow-lg hover:bg-white hover:scale-105 transition-all"
+                            title="Preview"
                         >
-                            <div className="bg-white/90 text-red-600 px-4 py-2 rounded-full font-bold shadow-lg flex items-center gap-2 hover:bg-white hover:scale-105 transition-all">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                        {onDelete && (
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    onDelete();
+                                }}
+                                className="bg-white/90 text-red-600 px-4 py-2 rounded-full font-bold shadow-lg flex items-center gap-2 hover:bg-white hover:scale-105 transition-all"
+                            >
                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
-                                Delete File
-                            </div>
-                        </button>
-                    )}
+                                Delete
+                            </button>
+                        )}
+                    </div>
                     <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs py-1 z-10">
                         Current File
                     </div>
@@ -110,9 +125,24 @@ const FileUploader = ({ label, file, setFile, existingUrl, onDelete, color = "in
                                 <img src={previewUrl} alt="Preview" className="w-full h-full object-contain rounded-lg" />
                             )}
 
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
-                                <span className="opacity-0 group-hover:opacity-100 bg-white/90 px-3 py-1.5 rounded-full text-xs font-bold shadow-sm transform translate-y-4 group-hover:translate-y-0 transition-all text-slate-700">
-                                    Change File
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center pointer-events-none gap-2">
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        window.open(previewUrl, '_blank');
+                                    }}
+                                    className="bg-white/90 text-slate-700 p-2 rounded-full shadow-lg hover:bg-white hover:scale-105 transition-all opacity-0 group-hover:opacity-100 pointer-events-auto transform translate-y-4 group-hover:translate-y-0"
+                                    title="Preview"
+                                >
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </button>
+                                <span className="opacity-0 group-hover:opacity-100 bg-white/90 px-3 py-1.5 rounded-full text-xs font-bold shadow-sm transform translate-y-4 group-hover:translate-y-0 transition-all text-slate-700 pointer-events-auto cursor-pointer">
+                                    Change
                                 </span>
                             </div>
                         </div>
@@ -193,11 +223,15 @@ function EditForm() {
                     if (result.headers) {
                         result.headers.forEach((col: string, index: number) => {
                             let val = row[col];
-                            // Format date if needed (YYYY-MM-DD -> DD/MM/YYYY)
+                            // Format date if needed (DD/MM/YYYY -> YYYY-MM-DD) for boolean date inputs
                             if (col.toLowerCase().includes('dob') || col.toLowerCase().includes('date of birth') || col.toLowerCase().includes('date')) {
-                                if (val && /^\d{4}-\d{2}-\d{2}$/.test(val)) {
-                                    const [y, m, d] = val.split('-');
-                                    val = `${d}/${m}/${y}`;
+                                if (val) {
+                                    // Handle DD/MM/YYYY or DD-MM-YYYY -> YYYY-MM-DD
+                                    if (/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}$/.test(val)) {
+                                        const [d, m, y] = val.split(/[\/\-]/);
+                                        val = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+                                    }
+                                    // If already YYYY-MM-DD, leave it as is
                                 }
                             }
                             setValue(`field_${index}`, val);
@@ -353,10 +387,13 @@ function EditForm() {
 
             setUploading(true);
 
+            // Helper
+            const getExt = (file: File) => file.type === 'application/pdf' ? '.pdf' : '.jpg';
+
             // 1. Upload Person Photo
             if (filePerson) {
                 setStatusMsg('Uploading Passport Photo...');
-                const filename = `${ppVal}_person.jpg`;
+                const filename = `${ppVal}_person${getExt(filePerson)}`;
                 const url = await uploadFile(filePerson, filename, 'photo');
                 data['photo (passport size)'] = url;
             }
@@ -364,7 +401,7 @@ function EditForm() {
             // 2. Upload Front Copy
             if (fileFront) {
                 setStatusMsg('Uploading Passport Front...');
-                const filename = `${ppVal}_passportCopy_front.jpg`;
+                const filename = `${ppVal}_passportCopy_front${getExt(fileFront)}`;
                 const url = await uploadFile(fileFront, filename, 'copy');
                 data['passport photo (front)'] = url;
             }
@@ -372,7 +409,7 @@ function EditForm() {
             // 3. Upload Back Copy
             if (fileBack) {
                 setStatusMsg('Uploading Passport Back...');
-                const filename = `${ppVal}_passportCopy_back.jpg`;
+                const filename = `${ppVal}_passportCopy_back${getExt(fileBack)}`;
                 const url = await uploadFile(fileBack, filename, 'copy');
                 data['passport photo (back)'] = url;
             }
@@ -380,7 +417,7 @@ function EditForm() {
             // 4. Upload Aadhar Front
             if (fileAadharFront) {
                 setStatusMsg('Uploading Aadhar (Front)...');
-                const filename = `${ppVal}_aadhar_front.jpg`;
+                const filename = `${ppVal}_aadhar_front${getExt(fileAadharFront)}`;
                 const url = await uploadFile(fileAadharFront, filename, 'adhar');
                 data['Aadhar Image (front)'] = url;
             }
@@ -388,7 +425,7 @@ function EditForm() {
             // 5. Upload Aadhar Back
             if (fileAadharBack) {
                 setStatusMsg('Uploading Aadhar (Back)...');
-                const filename = `${ppVal}_aadhar_back.jpg`;
+                const filename = `${ppVal}_aadhar_back${getExt(fileAadharBack)}`;
                 const url = await uploadFile(fileAadharBack, filename, 'adhar');
                 data['Aadhar Image (back)'] = url;
             }
@@ -396,7 +433,7 @@ function EditForm() {
             // 6. Upload Pancard
             if (filePancard) {
                 setStatusMsg('Uploading Pan Card...');
-                const filename = `${ppVal}_pancard.jpg`;
+                const filename = `${ppVal}_pancard${getExt(filePancard)}`;
                 const url = await uploadFile(filePancard, filename, 'pancard');
                 data['pancard image'] = url;
             }
@@ -404,7 +441,7 @@ function EditForm() {
             // 7. Upload Passbook
             if (filePassbook) {
                 setStatusMsg('Uploading Bank Passbook...');
-                const filename = `${ppVal}_passbook.jpg`;
+                const filename = `${ppVal}_passbook${getExt(filePassbook)}`;
                 const url = await uploadFile(filePassbook, filename, 'passbook');
                 data['bank pasbook'] = url;
             }
@@ -412,7 +449,7 @@ function EditForm() {
             // 8. Upload Medical Documents
             if (fileMedical) {
                 setStatusMsg('Uploading Medical Docs...');
-                const filename = `${ppVal}_medical.jpg`; // Cloudinary handles extension
+                const filename = `${ppVal}_medical${getExt(fileMedical)}`; // Cloudinary handles extension
                 const url = await uploadFile(fileMedical, filename, 'medical');
                 data['Medical Documents (If any)'] = url;
             }
@@ -461,7 +498,7 @@ function EditForm() {
     // Helper to determine input type
     const getInputType = (col: string) => {
         const c = col.toLowerCase();
-        if (c.includes('dob') || c.includes('expiry date') || c.includes('date')) return 'text'; // Start as text for format control
+        if (c.includes('dob') || c.includes('expiry date') || c.includes('date')) return 'date';
         if (c === 'age') return 'number';
         return 'text';
     };

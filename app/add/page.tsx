@@ -213,10 +213,13 @@ export default function AddPage() {
 
             setUploading(true);
 
+            // Helper for extension
+            const getExt = (file: File) => file.type === 'application/pdf' ? '.pdf' : '.jpg';
+
             // 1. Upload Person Photo
             if (filePerson) {
                 setStatusMsg('Uploading Person Photo...');
-                const filename = `${ppVal}_person.jpg`;
+                const filename = `${ppVal}_person${getExt(filePerson)}`;
                 const url = await uploadFile(filePerson, filename, 'photo');
                 // Use new specific header
                 data['photo (passport size)'] = url;
@@ -225,7 +228,7 @@ export default function AddPage() {
             // 2. Upload Front Copy
             if (fileFront) {
                 setStatusMsg('Uploading Passport (Front)...');
-                const filename = `${ppVal}_passportCopy_front.jpg`;
+                const filename = `${ppVal}_passportCopy_front${getExt(fileFront)}`;
                 const url = await uploadFile(fileFront, filename, 'copy');
                 data['passport photo (front)'] = url;
             }
@@ -233,7 +236,7 @@ export default function AddPage() {
             // 3. Upload Back Copy
             if (fileBack) {
                 setStatusMsg('Uploading Passport (Back)...');
-                const filename = `${ppVal}_passportCopy_back.jpg`;
+                const filename = `${ppVal}_passportCopy_back${getExt(fileBack)}`;
                 const url = await uploadFile(fileBack, filename, 'copy');
                 data['passport photo (back)'] = url;
             }
@@ -241,7 +244,7 @@ export default function AddPage() {
             // 4. Upload Aadhar Front
             if (fileAadharFront) {
                 setStatusMsg('Uploading Aadhar (Front)...');
-                const filename = `${ppVal}_aadhar_front.jpg`;
+                const filename = `${ppVal}_aadhar_front${getExt(fileAadharFront)}`;
                 const url = await uploadFile(fileAadharFront, filename, 'adhar');
                 data['Aadhar Image (front)'] = url;
             }
@@ -249,7 +252,7 @@ export default function AddPage() {
             // 5. Upload Aadhar Back
             if (fileAadharBack) {
                 setStatusMsg('Uploading Aadhar (Back)...');
-                const filename = `${ppVal}_aadhar_back.jpg`;
+                const filename = `${ppVal}_aadhar_back${getExt(fileAadharBack)}`;
                 const url = await uploadFile(fileAadharBack, filename, 'adhar');
                 data['Aadhar Image (back)'] = url;
             }
@@ -257,7 +260,7 @@ export default function AddPage() {
             // 6. Upload Pancard
             if (filePancard) {
                 setStatusMsg('Uploading Pan Card...');
-                const filename = `${ppVal}_pancard.jpg`;
+                const filename = `${ppVal}_pancard${getExt(filePancard)}`;
                 const url = await uploadFile(filePancard, filename, 'pancard');
                 data['pancard image'] = url;
             }
@@ -265,7 +268,7 @@ export default function AddPage() {
             // 7. Upload Passbook
             if (filePassbook) {
                 setStatusMsg('Uploading Bank Passbook...');
-                const filename = `${ppVal}_passbook.jpg`;
+                const filename = `${ppVal}_passbook${getExt(filePassbook)}`;
                 const url = await uploadFile(filePassbook, filename, 'passbook');
                 data['bank pasbook'] = url;
             }
@@ -273,7 +276,7 @@ export default function AddPage() {
             // 8. Upload Medical Documents
             if (fileMedical) {
                 setStatusMsg('Uploading Medical Docs...');
-                const filename = `${ppVal}_medical.jpg`; // Cloudinary will handle extension if different
+                const filename = `${ppVal}_medical${getExt(fileMedical)}`;
                 const url = await uploadFile(fileMedical, filename, 'medical');
                 data['Medical Documents (If any)'] = url;
             }
@@ -375,7 +378,7 @@ export default function AddPage() {
                                         return null;
                                     }
 
-                                    const isRequired = (col.toLowerCase().includes('passport no') || col.toLowerCase().includes('name')) && !col.toLowerCase().includes('bank');
+                                    const isRequired = (col.toLowerCase().includes('passport no') || col.toLowerCase().includes('name')) && !col.toLowerCase().includes('bank') && !col.toLowerCase().includes('surname');
                                     // Use index based key to avoid special char issues in hook form
                                     const fieldKey = `field_${index}`;
 
