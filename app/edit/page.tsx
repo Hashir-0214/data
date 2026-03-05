@@ -526,7 +526,7 @@ function EditForm() {
                             </svg>
                             Back to Dashboard
                         </Link>
-                        <h1 className="text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl">Edit Entry #{id}</h1>
+                        <h1 className="text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl">Badge No #{id}</h1>
                         <p className="text-sm text-slate-600">Update traveler details and documents.</p>
                     </div>
 
